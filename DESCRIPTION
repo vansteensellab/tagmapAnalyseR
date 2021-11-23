@@ -6,6 +6,8 @@ Authors@R:
            comment = c(ORCID = "0000-0003-3059-5183"))
 Description: Functional analysis of TagMap (Tagmentation-based Mapping)
     sequencing data for transposable elements.
+URL: https://github.com/krademaker/tagmapAnalyseR
+BugReports: https://github.com/krademaker/tagmapAnalyseR/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
