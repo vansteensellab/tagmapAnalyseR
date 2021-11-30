@@ -7,7 +7,8 @@
 #' PCR duplicates) where the transposon overhang sequence and position is
 #' reported, are processed in this function. TISes can be filtered based on read
 #' depth, ambiguous insertion positions or overhang sequences are corrected
-#' for, and more detailed metadata per TIS are reported.
+#' for. More detailed metadata per TIS are reported, including
+#' Tagmentation-reaction specific counts, median MAPQ and strand orientation.
 #'
 #' @author Koen Rademaker, \email{k.rademaker@nki.nl}
 #' @param dt A data.table with TIS data taken directly from
@@ -26,12 +27,10 @@
 #'
 #' @return A data table with the columns:
 #' \describe{
-#' \item{chr, start, end}{Exact genomic position of the insertion site.}
-#' \item{TIS_seq}{Overhang sequence of the TIS.}
-#' \item{strand}{Strand on which the insertion has taken place.}
+#' \item{chr, start, end, seq}{Genomic coordinates, overhang sequence and strand
+#' of the insertion site.}
 #' \item{region_start, region_end}{Exact genomic position of reads around TIS.}
 #' \item{read_names}{Names of individual reads supporting a particular TIS.}
-#' \item{revmap}{TO-DO}
 #' \item{read_count}{Number of reads supporting a TIS.}
 #' \item{mapq}{Median mapq of reads supporting a TIS.}
 #' }
@@ -44,7 +43,7 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   # VARIABLE DECLARATION AND TESTING ----------------------------------------
 
 
-  # Test for function path to samtools
+    # Test for function path to samtools
   if (is.null(samtoolsPath)) {
     SAMTOOLS <- system("which samtools", intern = TRUE)
   } else if (!is.null(samtoolsPath)) {
@@ -76,32 +75,38 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   readsPerTIS <- dt %>% dplyr::count(chr, TIS_start, TIS_end)
 
 
+  # Evaluate which Tagmentation reactions are in the data
+  hasForwardReaction <- 'Fw' %in% dt$reaction
+  hasReverseReaction <- 'Rv' %in% dt$reaction
+
+
   # Column names expected for particular single or double Tagmentation reactions
-  COL_MARKER_TWO_TAGMAP <- c('read_count_1.x','mapq_1.x','read_count_2.x','mapq_2.x')
-  COL_SELECT_TWO_TAGMAP_SHIFTED <- c('seqnames','start','end','width',
+  COLS_FWRV <- c('read_count_1.x','mapq_1.x','read_count_2.x','mapq_2.x')
+  COLS_FWRV_AMBIGUOUS <- c('seqnames','start','end','width',
     'TIS_seq.y','strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x','read_count_1.x','mapq_1.x','read_count_2.x',
     'mapq_2.x')
-  COL_SELECT_TWO_TAGMAP <- c('chr.x','start.x','end.x','width.x',
+  COLS_FWRV_UNAMBIGUOUS <- c('chr.x','start.x','end.x','width.x',
     'TIS_seq','strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x','read_count_1.x','mapq_1.x','read_count_2.x',
     'mapq_2.x')
-  COL_RENAME_TWO_TAGMAP <- c('chr','start','end','width','TIS_seq','strand',
+  RENAME_FWRV <- c('chr','start','end','width','TIS_seq','strand',
     'region_start', 'region_end', 'read_names','revmap','read_count','mapq',
     'read_count_1', 'mapq_1','read_count_2', 'mapq_2')
-  COL_SELECT_ONE_TAGMAP_SHIFTED <- c('seqnames','start','end','width','TIS_seq.y',
+  COLS_SINGLE_AMBIGUOUS <- c('seqnames','start','end','width','TIS_seq.y',
     'strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x')
-  COL_SELECT_ONE_TAGMAP <- c('chr.x','start.x','end.x','width.x','TIS_seq',
+  COLS_SINGLE_UMAMBIGUOUS <- c('chr.x','start.x','end.x','width.x','TIS_seq',
     'strand.x','region_start','region_end','read_names.x','revmap.x','read_count.x','mapq.x')
-  COL_RENAME_ONE_TAGMAP <- c('chr','start','end','width','TIS_seq','strand',
+  RENAME_SINGLE <- c('chr','start','end','width','TIS_seq','strand',
     'region_start','region_end','read_names','revmap','read_count',
     'mapq')
+  AMBIGUOUS_STRAND <- '*'
+
 
 
 
   # MAP BASIC INSERTION SITE DATA -------------------------------------------
-
 
 
   # Create GenomicRanges object
@@ -113,6 +118,7 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
     strand.field = "strand"
   )
 
+
   # Reduce to overlapping insertion sites
   dtReducedRanges <- GenomicRanges::reduce(
     dtGenomicRanges,
@@ -120,6 +126,7 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
     ignore.strand = ignoreStrand,
     with.revmap = TRUE
   )
+
 
   # Get read counts, median MAPQ and read names, remove sites below minimum read depth
   readsR1 <- readBam(bamFilePath = bam,
@@ -135,16 +142,16 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
     dplyr::mutate(read_names = list(dtGenomicRanges[unlist(revmap),]$read_name))
   # dtOutput = Main object with filtered data on insertion sites
 
+
   # Get start/end of reads in region around insertion site
   dtOutput <- dtOutput %>%
     dplyr::rowwise() %>%
-    dplyr::mutate(region_start = min(readsR1[readsR1$QNAME %in%
-                                             read_names,c('POS','PNEXT')])) %>%
-    dplyr::mutate(region_end = max(readsR1[readsR1$QNAME %in%
-                                             read_names,c('POS','PNEXT','TLEN')] %>%
-                                     mutate(end = min(POS,PNEXT) + abs(TLEN) - 1) %>%
-                                     select(end),
+    dplyr::mutate(region_start = min(readsR1[readsR1$QNAME %in% read_names,c('POS','PNEXT')],
+                                     dtGenomicRanges[unlist(revmap),]$read_start)) %>%
+    dplyr::mutate(region_end = max(readsR1[readsR1$QNAME %in% read_names,c('POS','PNEXT','TLEN')] %>%
+                                     mutate(end = min(POS,PNEXT) + abs(TLEN) - 1) %>% select(end),
                                    dtGenomicRanges[unlist(revmap), ]$read_end))
+
 
   # Add column to store insertion site overhang sequence
   dtOutput['TIS_seq'] <- NA
@@ -155,21 +162,26 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   # PROCESS FORWARD/REVERSE TAGMENTATION REACTION SEPARATELY ----------------
 
 
-
-  # Get specific read count, median MAPQ and concordance
-  if (length(unique(dt$sample) == 2)) {
-    readsOfFirstSample <- dt %>% dplyr::filter(sample == unique(dt$sample)[1]) %>% dplyr::pull('read_name')
-    readsOfSecondSample <- dt %>% dplyr::filter(sample == unique(dt$sample)[2]) %>% dplyr::pull('read_name')
-
+  # Get Tagmentation reaction-specific read count and median MAPQ
+  if (hasForwardReaction & hasReverseReaction) {
+    # Read count for forward (read_count_1) and reverse (read_count_2) reactions
+    forwardReaction <- dt %>% dplyr::filter(reaction == 'Fw') %>% dplyr::pull('read_name')
+    reverseReaction <- dt %>% dplyr::filter(reaction == 'Rv') %>% dplyr::pull('read_name')
     dtOutput <- dtOutput %>% dplyr::rowwise() %>%
-      dplyr::mutate(read_count_1 = sum(read_names %in% readsOfFirstSample),
-                    read_count_2 = sum(read_names %in% readsOfSecondSample))
+      dplyr::mutate(read_count_1 = sum(read_names %in% forwardReaction),
+                    read_count_2 = sum(read_names %in% reverseReaction))
 
-    dtOutput <- dtOutput %>% dplyr::rowwise() %>%
-      dplyr::mutate(mapq_1 = median(dtGenomicRanges[read_names %in% readsOfFirstSample,]$mapq),
-                    mapq_2 = median(dtGenomicRanges[read_names %in% readsOfSecondSample,]$mapq))
-
-    # Concordance (1/2)
+    # Median MAPQ for forward (mapq_1) and reverse (mapq_2) reactions
+    mapq_1 <- c(1:nrow(dtOutput))
+    mapq_2 <- c(1:nrow(dtOutput))
+    for (indexTIS in 1:nrow(dtOutput)) {
+      mapq_1[indexTIS] <- median((GenomicRanges::as.data.frame(dtGenomicRanges[unlist(dtOutput[indexTIS,'revmap']),]) %>% dplyr::filter(reaction == 'Fw'))$mapq)
+      mapq_2[indexTIS] <- median((GenomicRanges::as.data.frame(dtGenomicRanges[unlist(dtOutput[indexTIS,'revmap']),]) %>% dplyr::filter(reaction == 'Rv'))$mapq)
+    }
+    dtOutput$mapq_1 <- mapq_1
+    dtOutput$mapq_2 <- mapq_2
+    dtOutput <- dtOutput %>% dplyr::mutate(mapq_1 = tidyr::replace_na(mapq_1, '-'),
+                                           mapq_2 = tidyr::replace_na(mapq_2, '-'))
   }
 
 
@@ -178,11 +190,11 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   # CORRECT FOR SHIFTED INSERTION SITES -------------------------------------
 
 
-
   # Find sites with ambiguous genomic positions due to conflicting reads
   dtAmbiguousPositions <- dtOutput[dtOutput$width > overhangLength, ]
   # dtAmbiguousPositions = Subset of insertion sites with a wider than expected
   #                        insertion site length
+
 
   # Correct data if shifted insertion sites are reported
   if (nrow(dtAmbiguousPositions) != 0) {
@@ -195,17 +207,17 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
     # Re-join data
     dtOutput <- dplyr::left_join(dtOutput, dtAmbiguousPositions,
                              by = c("region_start", "region_end")) %>%
-                  dplyr::mutate(start = dplyr::coalesce(start.y, start.x),
-                                end = dplyr::coalesce(end.y, end.x),
-                                width = dplyr::coalesce(width.y, width.x))
+      dplyr::mutate(start = dplyr::coalesce(start.y, start.x),
+                    end = dplyr::coalesce(end.y, end.x),
+                    width = dplyr::coalesce(width.y, width.x))
 
     # Check for columns indicating a double Tagmentation reaction (Fw/Rv samples)
-    if ( !all(COL_MARKER_TWO_TAGMAP %in% colnames(dtOutput)) ) {
-      dtOutput <- dtOutput %>% dplyr::select(COL_SELECT_ONE_TAGMAP_SHIFTED)
-      colnames(dtOutput) <- COL_RENAME_ONE_TAGMAP
-    } else if ( all(COL_MARKER_TWO_TAGMAP %in% colnames(dtOutput)) ) {
-      dtOutput <- dtOutput %>% dplyr::select(COL_SELECT_TWO_TAGMAP_SHIFTED)
-      colnames(dtOutput) <- COL_RENAME_TWO_TAGMAP
+    if ( !all(COLS_FWRV %in% colnames(dtOutput)) ) {
+      dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_AMBIGUOUS)
+      colnames(dtOutput) <- RENAME_SINGLE
+    } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
+      dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_AMBIGUOUS)
+      colnames(dtOutput) <- RENAME_FWRV
     }
   }
 
@@ -215,31 +227,92 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   # ADD INSERTION SITE OVERHANG SEQUENCE TO DATA ----------------------------
 
 
-
   # Find insertion sites without overhang sequence value
-  dtNonShiftedPositions <- dtOutput[is.na(dtOutput$TIS_seq),]
-  # dtNonShiftedPositions = (Subset of) insertion sites with NA values for
-  #                         the overhang sequence
+  dtUnambiguousPositions <- dtOutput[is.na(dtOutput$TIS_seq),]
+  # dtUnambiguousPositions = (Subset of) insertion sites with NA values for
+  #                          the overhang sequence
+
 
   # Correct data
-  dtNonShiftedPositions <- updateInsertionSiteData(dt = dtNonShiftedPositions,
+  dtUnambiguousPositions <- updateInsertionSiteData(dt = dtUnambiguousPositions,
                                                     gr = dtGenomicRanges,
                                                     overhang = overhang,
                                                     readsPerTIS = readsPerTIS)
 
+
   # Re-join data
-  dtOutput <- dplyr::left_join(dtOutput, dtNonShiftedPositions,
+  dtOutput <- dplyr::left_join(dtOutput, dtUnambiguousPositions,
                                by = c("region_start", "region_end")) %>%
               dplyr::mutate(TIS_seq = dplyr::coalesce(TIS_seq.y, TIS_seq.x))
 
+
   # Check for columns indicating a double Tagmentation reaction (Fw/Rv samples)
-  if ( !all(COL_MARKER_TWO_TAGMAP %in% colnames(dtOutput)) ) {
-    dtOutput <- dtOutput %>% dplyr::select(COL_SELECT_ONE_TAGMAP)
-    colnames(dtOutput) <- COL_RENAME_ONE_TAGMAP
-  } else if ( all(COL_MARKER_TWO_TAGMAP %in% colnames(dtOutput)) ) {
-    dtOutput <- dtOutput %>% dplyr::select(COL_SELECT_TWO_TAGMAP)
-    colnames(dtOutput) <- COL_RENAME_TWO_TAGMAP
+  if ( !all(COLS_FWRV %in% colnames(dtOutput)) ) {
+    dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_UMAMBIGUOUS)
+    colnames(dtOutput) <- RENAME_SINGLE
+  } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
+    dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_UNAMBIGUOUS)
+    colnames(dtOutput) <- RENAME_FWRV
   }
+
+
+
+
+  # ADD TAGMENTATION REACTION STRAND ----------------------------------------
+
+
+  # Create vector to store strands per insertion site
+  strand <- c(1:nrow(dtOutput))
+
+
+  # Iterate over insertion sites, determine dominant strands for forward and/or
+  # reverse reaction reads, and return the strand per insertion site as '+', '-'
+  # or '*' in ambiguous circumstances
+  for (indexTIS in 1:nrow(dtOutput)) {
+    # Forward Tagmentation reaction reads
+    if (hasForwardReaction) {
+      fwStrands <- dplyr::pull(dt[read_name %in% unlist(dtOutput[indexTIS,'read_names']) & reaction == 'Fw', 'strand'])
+      fwDominantStrand <- names(which.max(table(fwStrands)))
+      fwDominantStrandFraction <- sum(fwStrands == fwDominantStrand, na.rm = TRUE) / length(fwStrands)
+    }
+
+    # Reverse Tagmentation reaction reads
+    if (hasReverseReaction) {
+      rvStrands <- dplyr::pull(dt[read_name %in% unlist(dtOutput[indexTIS,'read_names']) & reaction == 'Rv', 'strand'])
+      rvDominantStrand <- names(which.max(table(rvStrands)))
+      rvDominantStrandFraction <- sum(rvStrands == rvDominantStrand, na.rm = TRUE) / length(rvStrands)
+    }
+
+    # Combined forward and reverse reactions
+    if (hasForwardReaction & hasReverseReaction) {
+      if (is.null(fwDominantStrand) | is.null(rvDominantStrand)) {
+        if (is.null(fwDominantStrand)) {
+          strand[indexTIS] <- switchReadStrand(rvDominantStrand)
+        } else if (is.null(rvDominantStrand)) {
+          strand[indexTIS] <- fwDominantStrand
+        }
+      } else {
+        if ((fwDominantStrand == "+" & rvDominantStrand == "-") | (fwDominantStrand == "-" & rvDominantStrand == "+")) {
+          strand[indexTIS] <- fwDominantStrand
+        } else {
+          strand[indexTIS] <- AMBIGUOUS_STRAND
+        }
+      }
+
+      # Reverse reaction
+    } else if (!hasForwardReaction & hasReverseReaction) {
+      strand[indexTIS] <- switchReadStrand(rvDominantStrand)
+
+      # Forward reaction
+    } else if (hasForwardReaction & !hasReverseReaction) {
+      strand[indexTIS] <- fwDominantStrand
+    }
+  }
+  # Finalise column names.
+  dtOutput$strand <- strand
+  dtOutput <- dtOutput %>% select(-revmap)
+  colnames(dtOutput)[which(colnames(dtOutput) == "TIS_seq")] <- "seq"
+
 
   return(dtOutput)
 }

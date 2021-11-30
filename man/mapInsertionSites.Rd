@@ -40,12 +40,10 @@ taken directly from \code{\link{findAmbiguousInsertionSites}}.}
 \value{
 A data table with the columns:
 \describe{
-\item{chr, start, end}{Exact genomic position of the insertion site.}
-\item{TIS_seq}{Overhang sequence of the TIS.}
-\item{strand}{Strand on which the insertion has taken place.}
+\item{chr, start, end, seq}{Genomic coordinates, overhang sequence and strand
+of the insertion site.}
 \item{region_start, region_end}{Exact genomic position of reads around TIS.}
 \item{read_names}{Names of individual reads supporting a particular TIS.}
-\item{revmap}{TO-DO}
 \item{read_count}{Number of reads supporting a TIS.}
 \item{mapq}{Median mapq of reads supporting a TIS.}
 }
@@ -59,7 +57,8 @@ Input data table \code{dt} of filtered R2 reads (MAPQ >= 10, proper pairs, no
 PCR duplicates) where the transposon overhang sequence and position is
 reported, are processed in this function. TISes can be filtered based on read
 depth, ambiguous insertion positions or overhang sequences are corrected
-for, and more detailed metadata per TIS are reported.
+for. More detailed metadata per TIS are reported, including
+Tagmentation-reaction specific counts, median MAPQ and strand orientation.
 }
 \author{
 Koen Rademaker, \email{k.rademaker@nki.nl}
