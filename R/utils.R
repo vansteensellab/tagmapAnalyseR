@@ -31,7 +31,7 @@ readCalledInsertions <- function(inputFile) {
       "read_name", "chr", "read_start",
       "read_end", "strand", "mapq",
       "TIS_seq", "TIS_start", "TIS_end",
-      "sample"
+      "reaction"
     )
   ))
 }
@@ -257,4 +257,27 @@ readBam <- function(bamFilePath, samtoolsPath, flags = 0) {
 
   # Return formatted data
   return(bam)
+}
+
+
+
+
+#' Switch read strand
+#'
+#' Function to switch read strand when calling the Tagmentation reaction strand.
+#' Reverse strands are switched to forward and vice versa, the output is
+#' directly returned.
+#'
+#' This function is used for \code{\link{mapInsertionSites}} where the direction
+#' of one Tagmentation reaction can be determined from the reads of the opposite
+#' reaciton
+#'
+#' @author Koen Rademaker, \email{k.rademaker@nki.nl}
+#' @param strand Character of read strand, either '+' or '-'.
+#'
+#' @return Returns character '+' or '-'.
+#' @export
+switchReadStrand <- function(strand){
+  switched <- ifelse(strand == '+', yes = '-', no = '+')
+  return(switched)
 }
