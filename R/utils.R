@@ -153,8 +153,12 @@ updateInsertionSiteData <- function(dt, gr, overhang, readsPerTIS, ambiguousInse
           dplyr::select(TIS_seq, chr, TIS_start, TIS_end)
       )
       colnames(indexedData) <- c("TIS_seq", "chr", "start", "end")
-      indexedData <- indexedData %>%
-        dplyr::mutate(count = readsPerTIS[(TIS_start %in% start & TIS_end %in% end), n])
+
+      count <- c(1:nrow(indexedData))
+      for (c in 1:nrow(indexedData)) {
+        count[c] <- readsPerTIS[TIS_start == indexedData[c,]$start & TIS_end == indexedData[c,]$end]$n
+      }
+      indexedData$count <- count
     }
 
 
