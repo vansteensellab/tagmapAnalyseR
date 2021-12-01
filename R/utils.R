@@ -195,7 +195,10 @@ updateInsertionSiteData <- function(dt, gr, overhang, readsPerTIS, ambiguousInse
                                yes = list(indexedData[round(stats::runif(1, 1, nrow(indexedData))), ]),
                                no = ifelse(nrow(indexedData[TIS_seq == overhang]) == 1,
                                            yes = list(indexedData[TIS_seq == overhang]),
-                                           no = list(indexedData[TIS_seq == overhang][round(stats::runif(1, 1, nrow(indexedData[TIS_seq == overhang])))])
+                                           no = ifelse(nrow(indexedData[TIS_seq == overhang]) == 0,
+                                                       yes = list(indexedData[round(stats::runif(1, 1, nrow(indexedData)))]),
+                                                       no = list(indexedData[TIS_seq == overhang][round(stats::runif(1, 1, nrow(indexedData[TIS_seq == overhang])))])
+                                                       )
                                )
                   ),
                   no = list(indexedData[which.max(count), ])
