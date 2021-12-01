@@ -98,9 +98,10 @@ findAmbiguousInsertionSites <- function(dt, padding = 2) {
 #' returned if possible, otherwise the overhang sequences are compared to the
 #' one expected from argument \code{overhang}. If all ambiguous positions match
 #' the expected overhang, a random position will be returned, otherwise it is
-#' checked if one position uniquely matches the overhang and will be returned or
-#' whether more positions uniquely match the overhang and a random position will
-#' be returned.
+#' checked if one position uniquely matches the overhang which will be returned
+#' or that any positions matches the overhang at all, when none are present then
+#' a random position will be returned and if more positions uniquely match the
+#' overhang then a random position will be returned.
 #'
 #' If no argument \code{ambiguousInsertions} is passed, insertion site overhang
 #' sequences are investigated: if only one unique sequence is present, then this
@@ -179,7 +180,10 @@ updateInsertionSiteData <- function(dt, gr, overhang, readsPerTIS, ambiguousInse
     #           NO:
     #             IF only one position matches the overhang:
     #               YES: select the insertion site position matching overhang
-    #               NO: select insertion site position matching overhang at random
+    #               NO:
+    #                  IF any of the reads matches the overhang:
+    #                     YES: select insertion site position at random
+    #                     NO: select insertion site position matching overhang at random
     #       NO: select insertion site position with maximum read count
     updated <- data.table::as.data.table(ifelse(
       is.null(ambiguousInsertions),
