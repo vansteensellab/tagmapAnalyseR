@@ -70,14 +70,14 @@ readCalledInsertions <- function(inputFile) {
 findAmbiguousInsertionSites <- function(dt, padding = 2) {
   dt <- dplyr::arrange(dt, dt$chr, dt$TIS_start)
 
-  ambiguousInsertions <- dplyr::filter(
+  ambiguousInsertions <- data.table::as.data.table(dplyr::filter(
     dt,
     (dplyr::lead(dt$TIS_start) - dt$TIS_start >= 1 &
       dplyr::lead(dt$TIS_start) - dt$TIS_start <= padding) |
       (dt$TIS_start - dplyr::lag(dt$TIS_start) >= 1 &
         dt$TIS_start - dplyr::lag(dt$TIS_start) <= padding)
   ) %>%
-    dplyr::select(read_name, chr, TIS_start, TIS_end, strand, TIS_seq)
+    dplyr::select(read_name, chr, TIS_start, TIS_end, strand, TIS_seq))
 
   return(ambiguousInsertions)
 }
