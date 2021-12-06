@@ -1,12 +1,12 @@
-#' Read insertion sites called by pipeline.
+#' Read putative insertion sites called by pipeline.
 #'
-#' Reads insertions called by the pipeline into a data.table, according to the
+#' Reads putative insertions called by the pipeline into a data.table, according to the
 #' specific column naming convention, to be used for further analyses.
 #'
 #' @author Koen Rademaker, \email{k.rademaker@nki.nl}
 #' @param inputFile Path to input file.
 #'
-#' @return Returns data table for insertion site calling data outputted by the
+#' @return Returns data table for putative insertion sites outputted by the
 #' TagMap pipeline.
 #' \describe{
 #' \item{read_name}{Read name}
@@ -23,7 +23,7 @@
 #'
 #' @importFrom data.table data.table fread
 #' @export
-readCalledInsertions <- function(inputFile) {
+readPutativeInsertions <- function(inputFile) {
   return(data.table::fread(inputFile,
     header = F,
     sep = "\t",
@@ -50,7 +50,7 @@ readCalledInsertions <- function(inputFile) {
 #' that despite the local shift, reads map to the identical insertion site.
 #'
 #' @author Koen Rademaker, \email{k.rademaker@nki.nl}
-#' @param dt A data.table as returned by readCalledInsertions.
+#' @param dt A data.table as returned by readPutativeInsertions.
 #' @param padding Padding added around the TIS position that is used to evaluate
 #' whether the next upstream or downstream read overlaps within a range of N bp.
 #'
