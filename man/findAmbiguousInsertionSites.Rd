@@ -7,7 +7,7 @@
 findAmbiguousInsertionSites(dt, padding = 2)
 }
 \arguments{
-\item{dt}{A data.table as returned by readCalledInsertions.}
+\item{dt}{A data.table as returned by readPutativeInsertions.}
 
 \item{padding}{Padding added around the TIS position that is used to evaluate
 whether the next upstream or downstream read overlaps within a range of N bp.}

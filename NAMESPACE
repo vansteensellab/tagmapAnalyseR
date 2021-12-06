@@ -3,7 +3,7 @@
 export(findAmbiguousInsertionSites)
 export(mapInsertionSites)
 export(readBam)
-export(readCalledInsertions)
+export(readPutativeInsertions)
 export(switchReadStrand)
 export(updateInsertionSiteData)
 importFrom(GenomicRanges,GRanges)

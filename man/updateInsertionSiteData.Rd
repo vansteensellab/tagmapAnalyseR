@@ -45,9 +45,10 @@ site positions are investigated: the position with highest number of reads is
 returned if possible, otherwise the overhang sequences are compared to the
 one expected from argument \code{overhang}. If all ambiguous positions match
 the expected overhang, a random position will be returned, otherwise it is
-checked if one position uniquely matches the overhang and will be returned or
-whether more positions uniquely match the overhang and a random position will
-be returned.
+checked if one position uniquely matches the overhang which will be returned
+or that any positions matches the overhang at all, when none are present then
+a random position will be returned and if more positions uniquely match the
+overhang then a random position will be returned.
 
 If no argument \code{ambiguousInsertions} is passed, insertion site overhang
 sequences are investigated: if only one unique sequence is present, then this

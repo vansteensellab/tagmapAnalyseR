@@ -40,8 +40,8 @@ taken directly from \code{\link{findAmbiguousInsertionSites}}.}
 \value{
 A data table with the columns:
 \describe{
-\item{chr, start, end, seq}{Genomic coordinates, overhang sequence and strand
-of the insertion site.}
+\item{chr, start, end, seq, strand}{Genomic coordinates, overhang sequence
+and strand of the insertion site.}
 \item{region_start, region_end}{Exact genomic position of reads around TIS.}
 \item{read_names}{Names of individual reads supporting a particular TIS.}
 \item{read_count}{Number of reads supporting a TIS.}
