@@ -234,25 +234,27 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
 
 
   # Correct data
-  dtUnambiguousPositions <- updateInsertionSiteData(dt = dtUnambiguousPositions,
-                                                    gr = dtGenomicRanges,
-                                                    overhang = overhang,
-                                                    readsPerTIS = readsPerTIS)
+  if (nrow(dtUnambiguousPositions) != 0) {
+    dtUnambiguousPositions <- updateInsertionSiteData(dt = dtUnambiguousPositions,
+                                                      gr = dtGenomicRanges,
+                                                      overhang = overhang,
+                                                      readsPerTIS = readsPerTIS)
 
 
-  # Re-join data
-  dtOutput <- dplyr::left_join(dtOutput, dtUnambiguousPositions,
-                               by = c("region_start", "region_end")) %>%
-              dplyr::mutate(TIS_seq = dplyr::coalesce(TIS_seq.y, TIS_seq.x))
+    # Re-join data
+    dtOutput <- dplyr::left_join(dtOutput, dtUnambiguousPositions,
+                                 by = c("region_start", "region_end")) %>%
+                dplyr::mutate(TIS_seq = dplyr::coalesce(TIS_seq.y, TIS_seq.x))
 
 
-  # Check for columns indicating a double Tagmentation reaction (Fw/Rv samples)
-  if ( !all(COLS_FWRV %in% colnames(dtOutput)) ) {
-    dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_UMAMBIGUOUS)
-    colnames(dtOutput) <- RENAME_SINGLE
-  } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
-    dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_UNAMBIGUOUS)
-    colnames(dtOutput) <- RENAME_FWRV
+    # Check for columns indicating a double Tagmentation reaction (Fw/Rv samples)
+    if ( !all(COLS_FWRV %in% colnames(dtOutput)) ) {
+      dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_UMAMBIGUOUS)
+      colnames(dtOutput) <- RENAME_SINGLE
+    } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
+      dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_UNAMBIGUOUS)
+      colnames(dtOutput) <- RENAME_FWRV
+    }
   }
 
 
