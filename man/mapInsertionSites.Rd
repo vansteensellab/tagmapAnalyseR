@@ -17,7 +17,7 @@ mapInsertionSites(
 }
 \arguments{
 \item{dt}{A data.table with TIS data taken directly from
-\code{\link{readCalledInsertions}}.}
+\code{\link{readPutativeInsertions}}.}
 
 \item{bam}{Full path to BAM file(s).}
 
