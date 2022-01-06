@@ -12,7 +12,7 @@
 #'
 #' @author Koen Rademaker, \email{k.rademaker@nki.nl}
 #' @param dt A data.table with TIS data taken directly from
-#' \code{\link{readCalledInsertions}}.
+#' \code{\link{readPutativeInsertions}}.
 #' @param bam Full path to BAM file(s).
 #' @param overhang TIS overhang sequence, e.g. 'TTAA' for PiggyBac.
 #' @param depth Minimal read depth to filter TISes by.
