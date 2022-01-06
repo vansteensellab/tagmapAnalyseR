@@ -162,7 +162,6 @@ updateInsertionSiteData <- function(dt, gr, overhang, readsPerTIS, ambiguousInse
       }
       indexedData$count <- count
     }
-    print(indexedData)
 
 
     # Determine insertion site updates with the following decision tree:
