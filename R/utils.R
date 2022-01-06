@@ -22,6 +22,8 @@
 #' }
 #'
 #' @importFrom data.table data.table fread
+#' @importFrom dplyr mutate %>%
+#' @importFrom tidyr replace_na
 #' @export
 readPutativeInsertions <- function(inputFile) {
   return(data.table::fread(inputFile,
@@ -33,10 +35,9 @@ readPutativeInsertions <- function(inputFile) {
       "TIS_seq", "TIS_start", "TIS_end",
       "reaction"
     )
-  ))
+  ) %>%
+    dplyr::mutate(TIS_seq = tidyr::replace_na(TIS_seq, "NA")))
 }
-
-
 
 
 
@@ -161,6 +162,7 @@ updateInsertionSiteData <- function(dt, gr, overhang, readsPerTIS, ambiguousInse
       }
       indexedData$count <- count
     }
+    print(indexedData)
 
 
     # Determine insertion site updates with the following decision tree:
