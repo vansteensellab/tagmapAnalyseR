@@ -305,7 +305,7 @@ switchReadStrand <- function(strand){
 #'
 #' @author Koen Rademaker, \email{k.rademaker@nki.nl}
 #' @param chromosome Chromosome to return the size for, formatted as
-#' "chr<number>".
+#' "chr(number)".
 #' @param chromosomeSizesFile Full path to chrom.sizes file.
 #'
 #' @return Returns integer-value of chromosome size.
