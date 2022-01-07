@@ -293,3 +293,29 @@ switchReadStrand <- function(strand){
   switched <- ifelse(strand == '+', yes = '-', no = '+')
   return(switched)
 }
+
+
+
+#' Get chromosome size
+#'
+#' Get chromosome size from a reference genomes' chrom.sizes file, e.g. from
+#' UCSC or IGV.
+#'
+#' Insertion site data are updated using a decision tree.
+#'
+#' @author Koen Rademaker, \email{k.rademaker@nki.nl}
+#' @param chromosome Chromosome to return the size for, formatted as
+#' "chr<number>".
+#' @param chromosomeSizesFile Full path to chrom.sizes file.
+#'
+#' @return Returns integer-value of chromosome size.
+#'
+#' @importFrom dplyr filter pull %>%
+#' @importFrom data.table fread
+#' @export
+getChromosomeSize <- function(chromosome, chromosomeSizesFile){
+  return(data.table::fread(chromosomeSizesFile,
+                           col.names = c('chr', 'size')) %>%
+           dplyr::filter(chr == chromosome) %>%
+           dplyr::pull(size))
+}

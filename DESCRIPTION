@@ -22,4 +22,5 @@ Imports:
     GenomicRanges,
     stats,
     utils,
-    tidyr
+    tidyr,
+    tibble
