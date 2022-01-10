@@ -7,9 +7,10 @@
 slidingWindowReadoutCounts(data, chromosome, windowStart, windowEnd)
 }
 \arguments{
-\item{data}{Insertion site data (as formatted by TagMap pipeline).}
+\item{data}{Insertion site data (as formatted by TagMap pipeline), columns
+should minimally include- and be named 'chr', 'start' and 'end.}
 
-\item{chromosome}{Chromosome, formatted as "chr<number>".}
+\item{chromosome}{Chromosome, formatted as "chr(number)".}
 
 \item{windowStart}{Window start position.}
 

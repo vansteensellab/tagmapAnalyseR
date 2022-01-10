@@ -8,7 +8,7 @@ getChromosomeSize(chromosome, chromosomeSizesFile)
 }
 \arguments{
 \item{chromosome}{Chromosome to return the size for, formatted as
-"chr<number>".}
+"chr(number)".}
 
 \item{chromosomeSizesFile}{Full path to chrom.sizes file.}
 }

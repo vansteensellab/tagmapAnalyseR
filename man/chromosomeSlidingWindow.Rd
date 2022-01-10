@@ -9,14 +9,17 @@ chromosomeSlidingWindow(
   chromosome,
   windowStart,
   windowEnd,
-  windowSize,
-  stepSize
+  windowSize = 10000,
+  stepSize = 1000,
+  mode,
+  numerator = NULL,
+  denominator = NULL
 )
 }
 \arguments{
 \item{data}{Insertion site data (as formatted by TagMap pipeline).}
 
-\item{chromosome}{Chromosome, formatted as "chr<number>".}
+\item{chromosome}{Chromosome, formatted as "chr(number)".}
 
 \item{windowStart}{Chromosome position (integer) to calculate window
 coordinates from.}
@@ -28,6 +31,16 @@ coordinates to.}
 
 \item{stepSize}{Size that each step increases, from minimal steps of 1 bp to
 any other custom value.}
+
+\item{mode}{Readout mode, eiter 'counts' for number of insertions per sliding
+window or 'fraction' for number of insertions per sliding across experimental
+conditions.}
+
+\item{numerator}{Experimental condition(s) for numerator of fraction of
+insertions (only required for fraction readout).}
+
+\item{denominator}{Experimental condition(s) for denominator of fraction of
+insertions (only required for fraction readout).}
 }
 \value{
 Returns data table for putative insertion sites outputted by the
@@ -35,7 +48,7 @@ TagMap pipeline.
 \describe{
 \item{windowStart, windowEnd}{Chromosome start/end positions of a specific
 window}
-\item{readout}{Readout of the window, such as number of integrations}
+\item{readout}{Readout of the sliding window, e.g. number of integrations}
 }
 }
 \description{
