@@ -70,7 +70,7 @@ chromosomeSlidingWindow <- function(data, chromosome, windowStart, windowEnd, wi
     }
     # Readout: Fraction of insertions between experimental conditions
     if(tolower(mode) == 'fraction'){
-      windowReadout[i] <- slidingWindowReadoutCounts(
+      windowReadout[i] <- slidingWindowReadoutFraction(
         data = data,
         chromosome = chromosome,
         windowStart = windows[i],
