@@ -16,7 +16,7 @@
 #' @param windowSize Size of each window, e.g. 1e3 or 1e4 bp long.
 #' @param stepSize Size that each step increases, from minimal steps of 1 bp to
 #' any other custom value.
-#' @param mode Readout mode, eiter 'counts' for number of insertions per sliding
+#' @param mode Readout mode, either 'counts' for number of insertions per sliding
 #' window or 'fraction' for number of insertions per sliding across experimental
 #' conditions.
 #' @param numerator Experimental condition(s) for numerator of fraction of
