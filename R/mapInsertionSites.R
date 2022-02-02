@@ -96,7 +96,7 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
   COLS_SINGLE_AMBIGUOUS <- c('seqnames','start','end','width','TIS_seq.y',
     'strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x')
-  COLS_SINGLE_UMAMBIGUOUS <- c('chr.x','start.x','end.x','width.x','TIS_seq',
+  COLS_SINGLE_UMAMBIGUOUS <- c('chr','start.x','end.x','width.x','TIS_seq',
     'strand.x','region_start','region_end','read_names.x','revmap.x','read_count.x','mapq.x')
   RENAME_SINGLE <- c('chr','start','end','width','TIS_seq','strand',
     'region_start','region_end','read_names','revmap','read_count',
