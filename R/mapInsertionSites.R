@@ -86,7 +86,7 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
     'TIS_seq.y','strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x','read_count_1.x','mapq_1.x','read_count_2.x',
     'mapq_2.x')
-  COLS_FWRV_UNAMBIGUOUS <- c('chr.x','start.x','end.x','width.x',
+  COLS_FWRV_UNAMBIGUOUS <- c('seqnames','start.x','end.x','width.x',
     'TIS_seq','strand.x','region_start','region_end','read_names.x','revmap.x',
     'read_count.x','mapq.x','read_count_1.x','mapq_1.x','read_count_2.x',
     'mapq_2.x')
