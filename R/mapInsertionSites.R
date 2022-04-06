@@ -255,8 +255,13 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
         dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_UMAMBIGUOUS)
         colnames(dtOutput) <- RENAME_SINGLE
       } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
+        # deal with mixed ambiguous / unambiguous integrations
+        if(nrow(dtAmbiguousPositions) != 0){
+          COLS_FWRV_UNAMBIGUOUS[1] <- 'chr.x'
+        }
         dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_UNAMBIGUOUS)
         colnames(dtOutput) <- RENAME_FWRV
+        COLS_FWRV_UNAMBIGUOUS[1] <- 'seqnames'
       }
     }
 
