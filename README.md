@@ -36,4 +36,4 @@ mapped <- tagmapAnalyseR::mapInsertionSites(dt = dt,
 
 ## Contact / Support 
 
-Reach out through the issues section or reach out directly toscgen the [author](https://github.com/krademaker).
+Reach out through the issues section or reach out directly to the [author](https://github.com/krademaker).
