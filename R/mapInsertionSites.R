@@ -183,8 +183,8 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
       }
       dtOutput$mapq_1 <- mapq_1
       dtOutput$mapq_2 <- mapq_2
-      dtOutput <- dtOutput %>% dplyr::mutate(mapq_1 = tidyr::replace_na(mapq_1, '-'),
-                                             mapq_2 = tidyr::replace_na(mapq_2, '-'))
+      dtOutput <- dtOutput %>% dplyr::mutate(mapq_1 = tidyr::replace_na(as.character(mapq_1), '-'),
+                                             mapq_2 = tidyr::replace_na(as.character(mapq_2), '-'))
     }
 
 
@@ -255,8 +255,13 @@ mapInsertionSites <- function(dt, bam, overhang, depth = 1, gapWidth = 1, ignore
         dtOutput <- dtOutput %>% dplyr::select(COLS_SINGLE_UMAMBIGUOUS)
         colnames(dtOutput) <- RENAME_SINGLE
       } else if ( all(COLS_FWRV %in% colnames(dtOutput)) ) {
+          # deal with mixed ambiguous / unambiguous integrations
+          if(nrow(dtAmbiguousPositions) != 0){
+            COLS_FWRV_UNAMBIGUOUS[1] <- 'chr.x'
+          }
         dtOutput <- dtOutput %>% dplyr::select(COLS_FWRV_UNAMBIGUOUS)
         colnames(dtOutput) <- RENAME_FWRV
+        COLS_FWRV_UNAMBIGUOUS[1] <- 'seqnames'
       }
     }
 
