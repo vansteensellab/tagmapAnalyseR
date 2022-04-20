@@ -1,5 +1,7 @@
 # tagmapAnalyseR
 
+_Version 1.0.0, released 20 April 2022._
+
 Stand-alone package integrated into transposon mapping pipeline [tagmap_hopping](https://github.com/krademaker/tagmap_hopping/tree/snakefile_overhaul) for Tagmentation-Based Mapping (Tagmap) data, as well as stand-alone functionality.
 
 ## Background
@@ -36,4 +38,4 @@ mapped <- tagmapAnalyseR::mapInsertionSites(dt = dt,
 
 ## Contact / Support 
 
-Reach out through the issues section or reach out directly to the [author](https://github.com/krademaker).
+Reach out through the issues section or reach out directly to the [author](mailto:koenrademaker@outlook.com).
