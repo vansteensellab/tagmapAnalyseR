@@ -1,4 +1,4 @@
-# tagmapAnalyseR
+# tagmapAnalyseR <img src="images/tagmapAnalyseR_logo.png" align="right" alt="" width="175" />
 
 _Version 1.0.0, released 20 April 2022._
 
@@ -14,20 +14,26 @@ Dependencies for pipeline are described in the respective repository, see its [m
 
 **Installation**
 
-```devtools::install_github("https://github.com/krademaker/tagmapAnalyseR")```
+``` r
+devtools::install_github("https://github.com/krademaker/tagmapAnalyseR")
+```
 
 
 **Load processed read coverage of (putative) integrations**
 
-```dt <- tagmapAnalyseR::readPutativeInsertions(input)```
+``` r
+dt <- tagmapAnalyseR::readPutativeInsertions(input)
+```
 
 **Obtain integrations with ambiguous read coverage**
 
-```ambiguous <- tagmapAnalyseR::findAmbiguousInsertionSites(dt, padding = (nchar(overhang_sequence)*2)+2)```
+``` r
+ambiguous <- tagmapAnalyseR::findAmbiguousInsertionSites(dt, padding = (nchar(overhang_sequence)*2)+2)
+```
 
 **Map integrations**
 
-```
+``` r
 mapped <- tagmapAnalyseR::mapInsertionSites(dt = dt,
                                             bam = bam_path,
                                             overhang = overhang_sequence,
